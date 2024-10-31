@@ -14,12 +14,15 @@ class particle():
         self.v=v
     def draw(self):
         pygame.draw.circle(screen, "red", self.pixel_cords(), 10)
+
     def pixel_cords(self):
         return (int(self.x * w), int(h/2))
 
-p=particle(.5, 0.5)
+p=particle(.5, .5)
+r=particle(0.4,0.1)
 
-gor = True  # starting direction right
+directions = {p: True, r: True} # starting directions true is right
+parts = (p, r)
 
 while running:
     for event in pygame.event.get():
@@ -28,20 +31,21 @@ while running:
 
     screen.fill("black")
 
-    dt = clock.tick(60) / 1000
+    dt = clock.tick(60)/1000
 
-    if gor==True:
-        p.x += p.v * dt
-        if p.x > 1:
-            gor=False
-    else:
-        p.x -= p.v*dt
-        if p.x<0:
-            gor=True
+    for n in parts:
+        if directions[n]: #conditions for colliding while travelling right
+            n.x += n.v * dt
+            if n.x > 1 or (n == p and 0< r.x - p.x <= 0.01) or (n == r and 0< p.x - r.x <= 0.01):
+                directions[n]=False
+        else:
+            n.x -= n.v*dt
+            if n.x < 0 or (n == p and 0<p.x - r.x <= 0.01) or (n == r and 0<r.x - p.x <= 0.01):
+                directions[n] = True
 
 
     p.draw()
-
+    r.draw()
     pygame.display.flip()
 
 
