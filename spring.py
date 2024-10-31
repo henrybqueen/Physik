@@ -23,7 +23,7 @@ black = (0, 0, 0)
 # Particle.x is normalized in [0, 1], so to get pixel coordinate we have to do int(p.x * width), where width is the number of pixels in the x dimension
 class Particle():
 
-    def __init__(self, x, y, v):
+    def __init__(self, x, v):
         self.x = x # position
         self.v = v # velocity 
 
