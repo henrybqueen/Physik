@@ -1,4 +1,5 @@
 import pygame
+#happy halloween
 
 pygame.init()
 w=720
