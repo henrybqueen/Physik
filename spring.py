@@ -1,16 +1,16 @@
-import pygame
+import pygame as pg
 
 
 # Initialize Pygame
-pygame.init()
+pg.init()
 
-clock = pygame.time.Clock()
+clock = pg.time.Clock()
 
 # Set screen dimensions, these are pixels
 width, height = 800, 600
 
 # screen object is needed for drawing things
-screen = pygame.display.set_mode((width, height))
+screen = pg.display.set_mode((width, height))
 
 
 # Colors
@@ -23,13 +23,13 @@ black = (0, 0, 0)
 # Particle.x is normalized in [0, 1], so to get pixel coordinate we have to do int(p.x * width), where width is the number of pixels in the x dimension
 class Particle():
 
-    def __init__(self, x, v):
+    def __init__(self, x, y, v):
         self.x = x # position
         self.v = v # velocity 
 
 
     def draw(self):
-        pygame.draw.circle(screen, blue, self.pixel_cords(), 7)
+        pg.draw.circle(screen, blue, self.pixel_cords(), 7)
 
 
     # little method to convert from normalized cords [0, 1] to screen coords [0, width]. Since we are in one dimension, the y coordinate is fixed
@@ -47,21 +47,21 @@ while running:
 
 
     # this just checks if we've exited the window, boiler plate
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
             running = False
 
     # at the start of every render cycle, we paint over the screen to erase what we rendered on a previous cycle
     screen.fill(white)
     
     # a nice line for our particles to sit on 
-    pygame.draw.line(screen, black, (0, int(height/2)), (width, int(height/2)), 2)
+    pg.draw.line(screen, black, (0, int(height/2)), (width, int(height/2)), 1)
 
 
 
     # clock.tick(120) makes it so that our animation runs at <= 120 fps. If our animation gets really complicated it may run slower than 120 fps, but this
     # guarantees it will never exceed 120 fps. clock.tick() returns the elasped milli seconds since the last frame, so we divide by 1000 to get seconds
-    dt = clock.tick(120) / 1000.0
+    dt = clock.tick(256) / 1000.0
 
     # hooks law
     f = (0.5-p.x)
@@ -78,8 +78,8 @@ while running:
 
     # this is critical. "Pygame uses a technique called double buffering. When you draw on the screen, 
     # you're actually drawing to a back buffer. The flip() function swaps this back buffer with the front buffer, making your changes visible"
-    pygame.display.flip()
+    pg.display.flip()
 
 
 # Quit Pygame
-pygame.quit()
+pg.quit()
