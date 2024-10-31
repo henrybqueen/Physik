@@ -36,13 +36,18 @@ while running:
     for n in parts:
         if directions[n]: #conditions for colliding while travelling right
             n.x += n.v * dt
-            if n.x > 1 or (n == p and 0< r.x - p.x <= 0.01) or (n == r and 0< p.x - r.x <= 0.01):
+            if n.x > 1:
                 directions[n]=False
+            if (n == p and 0 < r.x - p.x <= 0.01) or (n == r and 0 < p.x - r.x <= 0.01):
+                p.v, r.v = r.v, p.v
+                directions[n] = False
         else:
             n.x -= n.v*dt
-            if n.x < 0 or (n == p and 0<p.x - r.x <= 0.01) or (n == r and 0<r.x - p.x <= 0.01):
+            if n.x < 0:
                 directions[n] = True
-
+            if  (n == p and 0<p.x - r.x <= 0.01) or (n == r and 0<r.x - p.x <= 0.01):
+                p.v, r.v = r.v, p.v
+                directions[n] = True
 
     p.draw()
     r.draw()
