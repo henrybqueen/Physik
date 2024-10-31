@@ -28,10 +28,10 @@ class Particle:
         return (int((self.x[0]+1)/2 * width), int((-self.x[1]+1)/2 * height))
 
     def step(self, dt: float):
-        # Hooke's law 
+
+        # gravitation force due to sun at center
         f = -(self.x / np.linalg.norm(self.x)**3) 
         
-        # Update velocity with damping: dv = (f/m - damping * v) * dt
         self.v += f * dt
 
         # Update position
@@ -57,6 +57,8 @@ while running:
     # Update and draw particle
     p.step(dt)
     p.draw()
+
+    # no dynamics for sun
     sun.draw()
 
     pg.display.flip()
