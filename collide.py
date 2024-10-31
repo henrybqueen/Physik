@@ -9,17 +9,18 @@ clock=pygame.time.Clock()
 running=True
 
 class particle():
-    def __init__(self, x, v):
+    def __init__(self, x, v, col):
         self.x=x
         self.v=v
+        self.col=col
     def draw(self):
-        pygame.draw.circle(screen, "red", self.pixel_cords(), 10)
+        pygame.draw.circle(screen, self.col, self.pixel_cords(), 10)
 
     def pixel_cords(self):
         return (int(self.x * w), int(h/2))
 
-p=particle(.5, .5)
-r=particle(0.4,0.1)
+p=particle(.5, .5, "red")
+r=particle(0.4,0.1, "blue")
 
 directions = {p: True, r: True} # starting directions true is right
 parts = (p, r)
