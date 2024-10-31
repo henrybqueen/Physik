@@ -1,66 +1,79 @@
 import pygame as pg
-import numpy as np  
+import numpy as np
 
-# Initialize Pygame
+# Constants
+WIDTH, HEIGHT = 800, 600
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+FPS = 256
+MAX_TRAIL_LENGTH = 128
+SUN_POSITION = np.array([0, 0])
+
+# Pygame setup
 pg.init()
+screen = pg.display.set_mode((WIDTH, HEIGHT))
 clock = pg.time.Clock()
 
-# Set screen dimensions (in pixels)
-width, height = 800, 600
-screen = pg.display.set_mode((width, height))
-
-# Colors
-white = (255, 255, 255)
-blue = (0, 0, 255)
-black = (0, 0, 0)
-
 class Particle:
-    def __init__(self, x: np.array, v: np.array, color):
-        self.x = np.array(x, dtype=float)  # Position in normalized coordinates
-        self.v = np.array(v, dtype=float)  # Velocity
+    def __init__(self, position: np.array, velocity: np.array, color: tuple, size: float):
+        self.position = np.array(position, dtype=float)
+        self.velocity = np.array(velocity, dtype=float)
         self.color = color
+        self.size = size
+        self.history = []
 
-    def draw(self):
-        pg.draw.circle(screen, self.color, self.pixel_cords(), 7)
+    def draw(self, surface):
+        pg.draw.circle(surface, self.color, self.to_pixel_coords(self.position), self.size)
+        if len(self.history) > 1:
+            pg.draw.aalines(surface, self.color, False, [self.to_pixel_coords(pos) for pos in self.history])
 
-    def pixel_cords(self):
-        """Convert from normalized coordinates [-1,1] to screen coordinates [0,width] and [0,height]."""
-        return (int((self.x[0]+1)/2 * width), int((-self.x[1]+1)/2 * height))
+    def to_pixel_coords(self, pos):
+        """Convert normalized coordinates [-1, 1] to screen coordinates."""
+        return int((pos[0] + 1) / 2 * WIDTH), int((-pos[1] + 1) / 2 * HEIGHT)
 
-    def step(self, dt: float):
+    def apply_gravitational_force(self, dt: float):
+        """Update particle velocity and position under central gravitational force."""
+        if np.linalg.norm(self.position) > 1e-6:  # Avoid division by zero at the center
+            force = -(self.position / np.linalg.norm(self.position)**3)
+            self.velocity += force * dt
+        self.position += self.velocity * dt
 
-        # gravitation force due to sun at center
-        f = -(self.x / np.linalg.norm(self.x)**3) 
-        
-        self.v += f * dt
+    def update_trail(self):
+        """Manage the particle's trail history."""
+        self.history.append(self.position.copy())
+        if len(self.history) > MAX_TRAIL_LENGTH:
+            self.history.pop(0)
 
-        # Update position
-        self.x += dt * self.v
+    def update(self, dt: float):
+        self.apply_gravitational_force(dt)
+        self.update_trail()
 
 
-# Initialize particle
-p = Particle([-0.5, -0.5], [0, 1], blue)
-sun = Particle([0, 0], [0, 0], black)
+def main():
+    particle = Particle(position=[-0.5, 0], velocity=[0.1, 0.7], color=BLUE, size=5)
+    sun = Particle(position=SUN_POSITION, velocity=[0, 0], color=BLACK, size=10)
 
-# Simulation loop
-running = True
-while running:
-    for event in pg.event.get():
-        if event.type == pg.QUIT:
-            running = False
+    running = True
+    while running:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                running = False
 
-    screen.fill(white)
-    pg.draw.line(screen, black, (0, int(height/2)), (width, int(height/2)), 1)
+        # Clear screen
+        screen.fill(WHITE)
+        #pg.draw.line(screen, BLACK, (0, HEIGHT // 2), (WIDTH, HEIGHT // 2), 1)
 
-    dt = clock.tick(256) / 1000.0
+        # Update and draw particles
+        dt = clock.tick(FPS) / 1000.0
+        particle.update(dt)
+        particle.draw(screen)
+        sun.draw(screen)
 
-    # Update and draw particle
-    p.step(dt)
-    p.draw()
+        # Update display
+        pg.display.flip()
 
-    # no dynamics for sun
-    sun.draw()
+    pg.quit()
 
-    pg.display.flip()
-
-pg.quit()
+if __name__ == "__main__":
+    main()
